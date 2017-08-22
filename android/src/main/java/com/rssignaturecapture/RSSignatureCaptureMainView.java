@@ -37,7 +37,6 @@ public class RSSignatureCaptureMainView extends LinearLayout implements OnClickL
   int mOriginalOrientation;
   Boolean saveFileInExtStorage = false;
   String viewMode = "portrait";
-  Boolean showNativeButtons = true;
   Boolean showTitleLabel = true;
   int maxSize = 500;
 
@@ -48,7 +47,7 @@ public class RSSignatureCaptureMainView extends LinearLayout implements OnClickL
     mActivity = activity;
 
     this.setOrientation(LinearLayout.VERTICAL);
-    this.signatureView = new RSSignatureCaptureView(context,this);
+    this.signatureView = new RSSignatureCaptureView(context, this);
     // add the buttons and signature views
     this.buttonsLayout = this.buttonsLayout();
     this.addView(this.buttonsLayout);
@@ -73,16 +72,6 @@ public class RSSignatureCaptureMainView extends LinearLayout implements OnClickL
       mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     } else if (viewMode.equalsIgnoreCase("landscape")) {
       mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-    }
-  }
-
-  public void setShowNativeButtons(Boolean showNativeButtons) {
-    this.showNativeButtons = showNativeButtons;
-    if (showNativeButtons) {
-      Log.d("Added Native Buttons", "Native Buttons:" + showNativeButtons);
-      buttonsLayout.setVisibility(View.VISIBLE);
-    } else {
-      buttonsLayout.setVisibility(View.GONE);
     }
   }
 
@@ -129,7 +118,7 @@ public class RSSignatureCaptureMainView extends LinearLayout implements OnClickL
 
     // empty the canvas
     else if (tag.equalsIgnoreCase("Reset")) {
-      this.signatureView.clearSignature();
+      this.signatureView.clear();
     }
   }
 
@@ -163,14 +152,14 @@ public class RSSignatureCaptureMainView extends LinearLayout implements OnClickL
       // save the signature
       if (saveFileInExtStorage) {
         FileOutputStream out = new FileOutputStream(file);
-        this.signatureView.getSignature().compress(Bitmap.CompressFormat.PNG, 90, out);
+        this.signatureView.getSignatureBitmap().compress(Bitmap.CompressFormat.PNG, 90, out);
         out.flush();
         out.close();
       }
 
 
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-      Bitmap resizedBitmap = getResizedBitmap(this.signatureView.getSignature());
+      Bitmap resizedBitmap = getResizedBitmap(this.signatureView.getSignatureBitmap());
       resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
 
 
@@ -207,7 +196,7 @@ public class RSSignatureCaptureMainView extends LinearLayout implements OnClickL
 
   public void reset() {
     if (this.signatureView != null) {
-      this.signatureView.clearSignature();
+      this.signatureView.clear();
     }
   }
 
