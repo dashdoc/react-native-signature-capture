@@ -227,21 +227,121 @@ static PPSSignaturePoint ViewPointToGL(CGPoint viewPoint, CGRect bounds, GLKVect
 	[self setNeedsDisplay];
 }
 
+- (UIImage*)imageByCombiningImage:(UIImage*)firstImage withImage:(UIImage*)secondImage {
+    UIImage *image = nil;
+    
+    CGSize newImageSize = CGSizeMake(MAX(firstImage.size.width, secondImage.size.width), MAX(firstImage.size.height, secondImage.size.height));
+    UIGraphicsBeginImageContextWithOptions(newImageSize, NO, [[UIScreen mainScreen] scale]);
+    [firstImage drawAtPoint:CGPointMake(roundf((newImageSize.width-firstImage.size.width)/2),
+                                        roundf((newImageSize.height-firstImage.size.height)/2))];
+    [secondImage drawAtPoint:CGPointMake(roundf((newImageSize.width-secondImage.size.width)/2),
+                                         roundf((newImageSize.height-secondImage.size.height)/2))];
+    image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return image;
+}
+
+-(UIImage *) snapshot
+{
+    UIImage *result = [super snapshot];
+    return result;
+}
+
+- (UIImage*)rotateImage:(UIImage*)sourceImage clockwise:(BOOL)clockwise
+{
+    CGSize size = sourceImage.size;
+    UIGraphicsBeginImageContext(CGSizeMake(size.height, size.width));
+    [[UIImage imageWithCGImage:[sourceImage CGImage]
+                         scale:1.0
+                   orientation:clockwise ? UIImageOrientationRight : UIImageOrientationLeft]
+     drawInRect:CGRectMake(0,0,size.height ,size.width)];
+    
+    UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return newImage;
+}
+
+- (UIImage*) reduceImage:(UIImage*)image toSize:(CGSize)newSize {
+    CGSize scaledSize = newSize;
+    float scaleFactor = 1.0;
+    
+    if(image.size.width > image.size.height) {
+        scaleFactor = image.size.width / image.size.height;
+        scaledSize.width = newSize.width;
+        scaledSize.height = newSize.height / scaleFactor;
+    }
+    else {
+        scaleFactor = image.size.height / image.size.width;
+        scaledSize.height = newSize.height;
+        scaledSize.width = newSize.width / scaleFactor;
+    }
+    
+    NSLog(@"%f x %f", scaledSize.width, scaledSize.height);
+    
+    UIGraphicsBeginImageContext(scaledSize);
+    CGRect scaledImageRect = CGRectMake( 0.0, 0.0, scaledSize.width, scaledSize.height );
+    [image drawInRect:scaledImageRect];
+    
+    UIImage* scaledImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return scaledImage;
+}
+
 - (UIImage *)signatureImage
 {
-	if (!self.hasSignature)
-		return nil;
+    return [self signatureImage:false withSquare:false];
+}
 
-//    self.hidden = YES;
-//
-//    self.strokeColor = [UIColor whiteColor];
-//    [self setNeedsDisplay];
-    UIImage *screenshot = [self snapshot];
+- (UIImage *)signatureImage: (BOOL) rotatedImage
+{
+    return [self signatureImage:rotatedImage withSquare:false];
+}
 
-//    self.strokeColor = nil;
-//
-//    self.hidden = NO;
-    return screenshot;
+- (UIImage *)signatureImage: (BOOL) rotatedImage withSquare:(BOOL) square
+{
+    if (!self.hasSignature)
+        return nil;
+    
+    UIImage *signatureImg;
+    UIImage *snapshot = [self snapshot];
+    [self erase];
+    
+    if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ) {
+        //signature
+        if (square) {
+            signatureImg = [self reduceImage:snapshot toSize: CGSizeMake(400.0f, 400.0f)];
+        }
+        else {
+            signatureImg = snapshot;
+        }
+    }
+    else {
+        //rotate iphone signature - iphone's signature screen is always landscape
+        
+        if (rotatedImage) {
+            if (square) {
+                UIImage *rotatedImg = [self rotateImage:snapshot clockwise:false];
+                signatureImg = [self reduceImage:rotatedImg toSize: CGSizeMake(400.0f, 400.0f)];
+            }
+            else {
+                UIImage *rotatedImg = [self rotateImage:snapshot clockwise:false];
+                signatureImg = rotatedImg;
+            }
+        }
+        else {
+            if (square) {
+                signatureImg = [self reduceImage:snapshot toSize: CGSizeMake(400.0f, 400.0f)];
+            }
+            else {
+                signatureImg = snapshot;
+            }
+        }
+    }
+    
+    return signatureImg;
 }
 
 
@@ -338,6 +438,7 @@ static PPSSignaturePoint ViewPointToGL(CGPoint viewPoint, CGRect bounds, GLKVect
             addVertex(mappedBuffer, &length, previousVertex);
 
             self.hasSignature = YES;
+            [self.manager publishDraggedEvent];
 
         } else if ([p state] == UIGestureRecognizerStateChanged) {
 
