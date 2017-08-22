@@ -2,14 +2,14 @@
 #import <OpenGLES/ES2/glext.h>
 #import "RSSignatureViewManager.h"
 
-#define             STROKE_WIDTH_MIN 0.004 // Stroke width determined by touch velocity
-#define             STROKE_WIDTH_MAX 0.030
+#define             STROKE_WIDTH_MIN 0.01 // Stroke width determined by touch velocity
+#define             STROKE_WIDTH_MAX 0.03
 #define       STROKE_WIDTH_SMOOTHING 0.5   // Low pass filter alpha
 
 #define           VELOCITY_CLAMP_MIN 20
 #define           VELOCITY_CLAMP_MAX 5000
 
-#define QUADRATIC_DISTANCE_TOLERANCE 3.0   // Minimum distance to make a curve
+#define QUADRATIC_DISTANCE_TOLERANCE 1.0   // Minimum distance to make a curve
 
 #define             MAXIMUM_VERTECES 100000
 
@@ -146,11 +146,6 @@ static PPSSignaturePoint ViewPointToGL(CGPoint viewPoint, CGRect bounds, GLKVect
 		UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap:)];
 		tap.cancelsTouchesInView = YES;
 		[self addGestureRecognizer:tap];
-		
-		// Erase with long press
-		UILongPressGestureRecognizer *longer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
-		longer.cancelsTouchesInView = YES;
-		[self addGestureRecognizer:longer];
 	}
 	else
 		[NSException raise:@"NSOpenGLES2ContextException" format:@"Failed to create OpenGL ES2 context"];
@@ -215,11 +210,7 @@ static PPSSignaturePoint ViewPointToGL(CGPoint viewPoint, CGRect bounds, GLKVect
 	UIImage *image = nil;
 	
 	CGSize newImageSize = CGSizeMake(MAX(firstImage.size.width, secondImage.size.width), MAX(firstImage.size.height, secondImage.size.height));
-	if (UIGraphicsBeginImageContextWithOptions != NULL) {
-		UIGraphicsBeginImageContextWithOptions(newImageSize, NO, [[UIScreen mainScreen] scale]);
-	} else {
-		UIGraphicsBeginImageContext(newImageSize);
-	}
+    UIGraphicsBeginImageContextWithOptions(newImageSize, NO, [[UIScreen mainScreen] scale]);
 	[firstImage drawAtPoint:CGPointMake(roundf((newImageSize.width-firstImage.size.width)/2),
 																			roundf((newImageSize.height-firstImage.size.height)/2))];
 	[secondImage drawAtPoint:CGPointMake(roundf((newImageSize.width-secondImage.size.width)/2),
