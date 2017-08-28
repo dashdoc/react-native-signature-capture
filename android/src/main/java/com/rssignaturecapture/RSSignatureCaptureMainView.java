@@ -84,24 +84,10 @@ public class RSSignatureCaptureMainView extends LinearLayout implements OnClickL
 
     // create the UI programatically
     LinearLayout linearLayout = new LinearLayout(this.getContext());
-    Button saveBtn = new Button(this.getContext());
-    Button clearBtn = new Button(this.getContext());
 
     // set orientation
     linearLayout.setOrientation(LinearLayout.HORIZONTAL);
     linearLayout.setBackgroundColor(Color.WHITE);
-
-    // set texts, tags and OnClickListener
-    saveBtn.setText("Save");
-    saveBtn.setTag("Save");
-    saveBtn.setOnClickListener(this);
-
-    clearBtn.setText("Reset");
-    clearBtn.setTag("Reset");
-    clearBtn.setOnClickListener(this);
-
-    linearLayout.addView(saveBtn);
-    linearLayout.addView(clearBtn);
 
     // return the whoe layout
     return linearLayout;
