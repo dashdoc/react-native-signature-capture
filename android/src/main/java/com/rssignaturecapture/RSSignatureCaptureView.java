@@ -199,6 +199,7 @@ public class RSSignatureCaptureView extends View {
                 addPoint(getNewPoint(eventX, eventY));
                 getParent().requestDisallowInterceptTouchEvent(true);
                 setIsEmpty(false);
+                sendDragEventToReact();
                 dragged = false;
                 break;
 
