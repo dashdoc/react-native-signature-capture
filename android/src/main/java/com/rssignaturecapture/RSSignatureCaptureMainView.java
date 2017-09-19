@@ -30,7 +30,6 @@ import android.content.pm.ActivityInfo;
 import java.lang.Boolean;
 
 public class RSSignatureCaptureMainView extends LinearLayout implements OnClickListener,RSSignatureCaptureView.SignatureCallback {
-  LinearLayout buttonsLayout;
   RSSignatureCaptureView signatureView;
 
   Activity mActivity;
@@ -48,9 +47,7 @@ public class RSSignatureCaptureMainView extends LinearLayout implements OnClickL
 
     this.setOrientation(LinearLayout.VERTICAL);
     this.signatureView = new RSSignatureCaptureView(context, this);
-    // add the buttons and signature views
-    this.buttonsLayout = this.buttonsLayout();
-    this.addView(this.buttonsLayout);
+    // add signature view
     this.addView(signatureView);
 
     setLayoutParams(new android.view.ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -77,20 +74,6 @@ public class RSSignatureCaptureMainView extends LinearLayout implements OnClickL
 
   public void setMaxSize(int size) {
     this.maxSize = size;
-  }
-
-
-  private LinearLayout buttonsLayout() {
-
-    // create the UI programatically
-    LinearLayout linearLayout = new LinearLayout(this.getContext());
-
-    // set orientation
-    linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-    linearLayout.setBackgroundColor(Color.WHITE);
-
-    // return the whoe layout
-    return linearLayout;
   }
 
   // the on click listener of 'save' and 'clear' buttons
