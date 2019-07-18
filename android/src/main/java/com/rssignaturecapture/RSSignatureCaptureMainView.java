@@ -37,7 +37,7 @@ public class RSSignatureCaptureMainView extends LinearLayout implements OnClickL
   Boolean saveFileInExtStorage = false;
   String viewMode = "portrait";
   Boolean showTitleLabel = true;
-  int maxSize = 500;
+  int maxSize = 200;
 
   public RSSignatureCaptureMainView(Context context, Activity activity) {
     super(context);
@@ -121,7 +121,7 @@ public class RSSignatureCaptureMainView extends LinearLayout implements OnClickL
       // save the signature
       if (saveFileInExtStorage) {
         FileOutputStream out = new FileOutputStream(file);
-        this.signatureView.getSignatureBitmap().compress(Bitmap.CompressFormat.PNG, 90, out);
+        this.signatureView.getSignatureBitmap().compress(Bitmap.CompressFormat.PNG, 60, out);
         out.flush();
         out.close();
       }
@@ -129,7 +129,7 @@ public class RSSignatureCaptureMainView extends LinearLayout implements OnClickL
 
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
       Bitmap resizedBitmap = getResizedBitmap(this.signatureView.getSignatureBitmap());
-      resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+      resizedBitmap.compress(Bitmap.CompressFormat.PNG, 60, byteArrayOutputStream);
 
 
       byte[] byteArray = byteArrayOutputStream.toByteArray();

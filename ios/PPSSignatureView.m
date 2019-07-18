@@ -17,6 +17,8 @@
 static GLKVector3 StrokeColor = { 0, 0, 0 };
 static float clearColor[4] = { 1, 1, 1, 0 };
 
+const static float MAX_SIZE = 200.0f;
+
 // Vertex structure containing 3D point and color
 struct PPSSignaturePoint
 {
@@ -229,7 +231,7 @@ static PPSSignaturePoint ViewPointToGL(CGPoint viewPoint, CGRect bounds, GLKVect
 
 - (UIImage*)imageByCombiningImage:(UIImage*)firstImage withImage:(UIImage*)secondImage {
     UIImage *image = nil;
-    
+
     CGSize newImageSize = CGSizeMake(MAX(firstImage.size.width, secondImage.size.width), MAX(firstImage.size.height, secondImage.size.height));
     UIGraphicsBeginImageContextWithOptions(newImageSize, NO, [[UIScreen mainScreen] scale]);
     [firstImage drawAtPoint:CGPointMake(roundf((newImageSize.width-firstImage.size.width)/2),
@@ -238,7 +240,7 @@ static PPSSignaturePoint ViewPointToGL(CGPoint viewPoint, CGRect bounds, GLKVect
                                          roundf((newImageSize.height-secondImage.size.height)/2))];
     image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
-    
+
     return image;
 }
 
@@ -256,17 +258,17 @@ static PPSSignaturePoint ViewPointToGL(CGPoint viewPoint, CGRect bounds, GLKVect
                          scale:1.0
                    orientation:clockwise ? UIImageOrientationRight : UIImageOrientationLeft]
      drawInRect:CGRectMake(0,0,size.height ,size.width)];
-    
+
     UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
-    
+
     return newImage;
 }
 
 - (UIImage*) reduceImage:(UIImage*)image toSize:(CGSize)newSize {
     CGSize scaledSize = newSize;
     float scaleFactor = 1.0;
-    
+
     if(image.size.width > image.size.height) {
         scaleFactor = image.size.width / image.size.height;
         scaledSize.width = newSize.width;
@@ -277,16 +279,16 @@ static PPSSignaturePoint ViewPointToGL(CGPoint viewPoint, CGRect bounds, GLKVect
         scaledSize.height = newSize.height;
         scaledSize.width = newSize.width / scaleFactor;
     }
-    
+
     NSLog(@"%f x %f", scaledSize.width, scaledSize.height);
-    
+
     UIGraphicsBeginImageContext(scaledSize);
     CGRect scaledImageRect = CGRectMake( 0.0, 0.0, scaledSize.width, scaledSize.height );
     [image drawInRect:scaledImageRect];
-    
+
     UIImage* scaledImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
-    
+
     return scaledImage;
 }
 
@@ -304,15 +306,15 @@ static PPSSignaturePoint ViewPointToGL(CGPoint viewPoint, CGRect bounds, GLKVect
 {
     if (!self.hasSignature)
         return nil;
-    
+
     UIImage *signatureImg;
     UIImage *snapshot = [self snapshot];
     [self erase];
-    
+
     if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ) {
         //signature
         if (square) {
-            signatureImg = [self reduceImage:snapshot toSize: CGSizeMake(400.0f, 400.0f)];
+            signatureImg = [self reduceImage:snapshot toSize: CGSizeMake(MAX_SIZE, MAX_SIZE)];
         }
         else {
             signatureImg = snapshot;
@@ -320,11 +322,11 @@ static PPSSignaturePoint ViewPointToGL(CGPoint viewPoint, CGRect bounds, GLKVect
     }
     else {
         //rotate iphone signature - iphone's signature screen is always landscape
-        
+
         if (rotatedImage) {
             if (square) {
                 UIImage *rotatedImg = [self rotateImage:snapshot clockwise:false];
-                signatureImg = [self reduceImage:rotatedImg toSize: CGSizeMake(400.0f, 400.0f)];
+                signatureImg = [self reduceImage:rotatedImg toSize: CGSizeMake(MAX_SIZE, MAX_SIZE)];
             }
             else {
                 UIImage *rotatedImg = [self rotateImage:snapshot clockwise:false];
@@ -333,14 +335,14 @@ static PPSSignaturePoint ViewPointToGL(CGPoint viewPoint, CGRect bounds, GLKVect
         }
         else {
             if (square) {
-                signatureImg = [self reduceImage:snapshot toSize: CGSizeMake(400.0f, 400.0f)];
+                signatureImg = [self reduceImage:snapshot toSize: CGSizeMake(MAX_SIZE, MAX_SIZE)];
             }
             else {
                 signatureImg = snapshot;
             }
         }
     }
-    
+
     return signatureImg;
 }
 
