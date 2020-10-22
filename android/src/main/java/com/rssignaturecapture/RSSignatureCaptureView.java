@@ -178,6 +178,7 @@ public class RSSignatureCaptureView extends View {
 
         float eventX = event.getX();
         float eventY = event.getY();
+        int moveHistorySize = event.getHistorySize();
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -191,7 +192,7 @@ public class RSSignatureCaptureView extends View {
             case MotionEvent.ACTION_MOVE:
                 resetDirtyRect(eventX, eventY);
                 addPoint(getNewPoint(eventX, eventY));
-                dragged = true;
+                dragged = moveHistorySize >= 1;
                 break;
 
             case MotionEvent.ACTION_UP:
