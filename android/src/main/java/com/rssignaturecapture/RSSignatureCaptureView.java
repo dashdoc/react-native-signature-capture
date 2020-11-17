@@ -179,6 +179,7 @@ public class RSSignatureCaptureView extends View {
         float eventX = event.getX();
         float eventY = event.getY();
         int moveHistorySize = event.getHistorySize();
+        console.warn({event.getHistorySize()})
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
