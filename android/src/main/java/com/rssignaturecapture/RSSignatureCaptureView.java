@@ -42,6 +42,9 @@ public class RSSignatureCaptureView extends View {
     private float mLastTouchY;
     private float mLastVelocity;
     private float mLastWidth;
+    private float mLastDrawnX;
+    private float mLastDrawnY;
+    private float totalStrokeLength;
     private RectF mDirtyRect;
     private Bitmap mBitmapSavedState;
 
@@ -79,6 +82,8 @@ public class RSSignatureCaptureView extends View {
         super(context);
         this.callback = callback;
 
+        totalStrokeLength = 0.0f;
+        
         //Configurable parameters
         mMinWidth = convertDpToPx(8);
         mMaxWidth = convertDpToPx(16);
@@ -151,6 +156,7 @@ public class RSSignatureCaptureView extends View {
 
     public void clearView() {
         dragged = false;
+        totalStrokeLength = 0;
         mSvgBuilder.clear();
         mPoints = new ArrayList<>();
         mLastVelocity = 0;
@@ -178,25 +184,28 @@ public class RSSignatureCaptureView extends View {
 
         float eventX = event.getX();
         float eventY = event.getY();
-        int moveHistorySize = event.getHistorySize();
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 getParent().requestDisallowInterceptTouchEvent(true);
                 mPoints.clear();
-                mLastTouchX = eventX;
-                mLastTouchY = eventY;
+                mLastDrawnX = mLastTouchX = eventX;
+                mLastDrawnY = mLastTouchY = eventY;
                 addPoint(getNewPoint(eventX, eventY));
                 if(mOnSignedListener != null) mOnSignedListener.onStartSigning();
 
             case MotionEvent.ACTION_MOVE:
                 resetDirtyRect(eventX, eventY);
+                addTotalLength(eventX, eventY);
+                mLastDrawnX = eventX;
+                mLastDrawnY = eventY;                
                 addPoint(getNewPoint(eventX, eventY));
-                dragged = moveHistorySize >= 1;
+                dragged = true;
                 break;
 
             case MotionEvent.ACTION_UP:
                 resetDirtyRect(eventX, eventY);
+                addTotalLength(eventX, eventY);
                 addPoint(getNewPoint(eventX, eventY));
                 getParent().requestDisallowInterceptTouchEvent(true);
                 setIsEmpty(false);
@@ -218,8 +227,12 @@ public class RSSignatureCaptureView extends View {
         return true;
     }
 
+    public void addTotalLength(float newX, float newY) {
+        totalStrokeLength += Math.sqrt((newY - mLastDrawnY) * (newY - mLastDrawnY) + (newX - mLastDrawnX) * (newX - mLastDrawnX));
+    }
+
     public void sendDragEventToReact() {
-        if (callback != null && dragged) {
+        if (callback != null && dragged && totalStrokeLength > 700.0f) {
             callback.onDragged();
         }
     }
